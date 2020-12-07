@@ -8,8 +8,8 @@ mergeLines f combine l = case span f l of
   (f1, []) -> [combine f1]
   (f1, f2) -> combine f1 : mergeLines f combine (tail f2)
 
-combinator :: [String] -> String
-combinator ls =
+combiner :: [String] -> String
+combiner ls =
   toList $ Prelude.foldr intersection (fromList ['a' .. 'z']) $ fromList <$> ls
 
 part_1 :: String -> String
@@ -17,4 +17,4 @@ part_1 s =
   show $ sum $ length . fromList <$> mergeLines (/= []) concat (lines s)
 
 part_2 :: String -> String
-part_2 s = show $ sum $ length <$> mergeLines (/= []) combinator (lines s)
+part_2 s = show $ sum $ length <$> mergeLines (/= []) combiner (lines s)
