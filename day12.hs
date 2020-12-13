@@ -18,57 +18,53 @@ data Loc = Loc {d :: Direction, x :: Int, y:: Int} deriving Show
 
 part_1 :: String -> String
 part_1 s =
-  let result =
-          foldl (\cur_loc action -> performAction cur_loc action) (Loc East 0 0)
-            $   parseLine
-            <$> lines s
+  let result = foldl performAction (Loc East 0 0) $ parseLine <$> lines s
   in  case result of
-        Loc _ x y -> show $ abs x + abs y
+        Loc _ s_x s_y -> show $ abs s_x + abs s_y
 
 part_2 :: String -> String
 part_2 s =
   let result =
-          foldl (\cur_loc action -> performActionWP cur_loc action)
-                (Loc East 10 1, Loc East 0 0)
+          foldl performActionWP (Loc East 10 1, Loc East 0 0)
             $   parseLine
             <$> lines s
   in  case snd result of
-        Loc _ x y -> show $ abs x + abs y
+        Loc _ s_x s_y -> show $ abs s_x + abs s_y
 
 
 
 performAction :: Loc -> Action -> Loc
 performAction l a = case a of
-  Move d n -> case d of
-    North -> l { y = (y l) + n }
-    South -> l { y = (y l) - n }
-    West  -> l { x = (x l) - n }
-    East  -> l { x = (x l) + n }
-  Turn    (LeftDir  n) -> l { d = apply turn_left n (d l) }
-  Turn    (RightDir n) -> l { d = apply turn_right n (d l) }
+  Move s_d n -> case s_d of
+    North -> l { y = y l + n }
+    South -> l { y = y l - n }
+    West  -> l { x = x l - n }
+    East  -> l { x = x l + n }
+  Turn    (LeftDir  n) -> l { d = apply turnLeft n (d l) }
+  Turn    (RightDir n) -> l { d = apply turnRight n (d l) }
   Forward n            -> performAction l $ Move (d l) n
 
 performActionWP :: (Loc, Loc) -> Action -> (Loc, Loc)
 performActionWP (wp, l) a = case a of
-  Move d n -> case d of
-    North -> (wp { y = (y wp) + n }, l)
-    South -> (wp { y = (y wp) - n }, l)
-    West  -> (wp { x = (x wp) - n }, l)
-    East  -> (wp { x = (x wp) + n }, l)
+  Move s_d n -> case s_d of
+    North -> (wp { y = y wp + n }, l)
+    South -> (wp { y = y wp - n }, l)
+    West  -> (wp { x = x wp - n }, l)
+    East  -> (wp { x = x wp + n }, l)
   Turn    n -> (rotateLoc wp n, l)
-  Forward n -> (wp, l { x = (x wp) * n + (x l), y = (y wp) * n + (y l) })
+  Forward n -> (wp, l { x = x wp * n + x l, y = y wp * n + y l })
 
 apply f n x = if n == 0 then x else apply f (n - 1) (f x)
 
-turn_right :: Direction -> Direction
-turn_right x = case x of
+turnRight :: Direction -> Direction
+turnRight x = case x of
   North -> East
   East  -> South
   South -> West
   West  -> North
 
-turn_left :: Direction -> Direction
-turn_left x = case x of
+turnLeft :: Direction -> Direction
+turnLeft s_x = case s_x of
   North -> West
   West  -> South
   South -> East
@@ -92,5 +88,5 @@ rotateLoc :: Loc -> RelDirection -> Loc
 rotateLoc l d = case d of
   LeftDir i -> if i == 0
     then l
-    else rotateLoc (l { y = (x l), x = -(y l) }) (LeftDir (i - 1))
+    else rotateLoc (l { y = x l, x = -(y l) }) (LeftDir (i - 1))
   RightDir i -> rotateLoc l $ LeftDir (4 - i)

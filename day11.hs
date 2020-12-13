@@ -1,5 +1,3 @@
-import           Data.Maybe
--- import           Control.Lens
 import           Data.Vector
 import           Data.List                      ( length
                                                 , filter
@@ -28,9 +26,7 @@ numOccupied rows =
     <$> rows
 
 isThing :: Plot -> Vector (Vector Plot) -> (Int, Int) -> Bool
--- isThing p thing (i, j) = fromMaybe False $ (== Occupied) <$> p ^? ix i . ix j
-  -- fromMaybe False $ (p ^? ix i) >>= (^? ix j) >>= (== thing)
-isThing thing p (i, j) = fromMaybe False $ (== thing) <$> (p !? i >>= (!? j))
+isThing thing p (i, j) = Just thing == (p !? i >>= (!? j))
 
 countThing :: Plot -> Vector (Vector Plot) -> Int -> Int -> Int
 countThing thing p i j =
