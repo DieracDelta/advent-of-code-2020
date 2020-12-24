@@ -5,43 +5,35 @@ import qualified Data.Map                      as M
 import qualified Control.Monad                 as CM
 import qualified Data.Char                     as C
 import qualified Data.Maybe                    as DM
-import qualified Data.Vector                   as V
+-- should probably change out to a mutable vector, but I'm lazy and it's "fast enough"...
+-- import qualified Data.Vector                   as V
 
 data Cups = Cups Int Int (M.Map Int Int) [Int] deriving Show
 
 main :: IO ()
 main = interact part_2
 
-showCups :: Cups -> String
-showCups (Cups cur_ele _ cmap s) =
-  (snd $ F.foldl'
-      (\acc _ ->
-        let element = DM.fromJust $ M.lookup (fst acc) cmap
-        in  (element, snd acc ++ "," ++ show element)
-      )
-      (cur_ele, "")
-      [1 .. 9]
-    )
-    ++ (show s)
-
 part_1 :: String -> String
 part_1 s =
   let parsedLine = parseInput s
-  in  show $ showCups $ iterate performRound parsedLine !! 100
+  in  show $ iterate performRound parsedLine !! 100
 
 part_2 :: String -> String
 part_2 s =
   let (Cups h _ omap _) = parseInput s
       start_cups        = Cups h 1000000 (append_to_input omap) []
       (Cups _ _ mmap _) = iterate performRound start_cups !! 10000000
-  in  show $ mmap M.! 1
+      first             = mmap M.! 1
+      second            = mmap M.! first
+  in  show $ first * second
 
-append_to_input :: M.Map Int Int -> M.Map Int Int
-append_to_input omap =
+-- should probably also automate this so input not hardcoded...
+appendToInput :: M.Map Int Int -> M.Map Int Int
+appendToInput omap =
   let nmap =
           F.foldl' (\acc ele -> M.insert ele (ele + 1) acc) omap [10 .. 999999]
-      nnmap = M.insert 7 10 nmap
-      f_map = M.insert 1000000 3 nnmap
+      nnmap = M.insert 4 10 nmap
+      f_map = M.insert 1000000 1 nnmap
   in  f_map
 
 correctEle :: Int -> Int -> Int
